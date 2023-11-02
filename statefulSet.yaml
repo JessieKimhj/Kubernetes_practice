@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: assignment-3-statefulset
+  namespace: jessiekim
+spec:
+  serviceName: "assignment_3"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: assignment_3
+  template:
+    metadata:
+      labels:
+        app: assignment_3
+    spec:
+      containers:
+        - name: node-assignment_3
+          image: jessiekim/assignment_3:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: env_value
+              value: environmentSnake
+            - name: secret_value
+              valueFrom:
+                secretKeyRef:
+                  name: secret2
+                  key: secret_value
+          readinessProbe:
+            httpGet:
+              path: /isAlive
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
